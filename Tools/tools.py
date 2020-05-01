@@ -270,7 +270,7 @@ async def credits(ctx): # credits of the developer
 @client.command()
 async def botinfo(ctx): # info about teh bot
     bot = client.get_user(697487580522086431)
-    GitHub Repo:** [Click here](https://github.com/EzZz1337/Tools) \n**Bot invite:** [Click here](https://discordapp.com/api/oauth2/authorize?client_id=697487580522086431&permissions=8&scope=bot) \n**Support server:** [Join](https://discord.gg/S9BEBux)')
+    e = discord.Embed(color=0x7289DA, description=F'**Name:** {bot} \n**ID:** {bot.id} \n**Prefix:** + \n \n**Servers:** {len(client.guilds)} \n**Members:** {len(set(client.get_all_members()))} \n**Ping:** {round(client.latency * 1000)}ms \n \n**Library:** discord.py \n**Developer:** EzZz#0001 \n**GitHub Repo:** [Click here](https://github.com/EzZz1337/Tools) \n**Bot invite:** [Click here](https://discordapp.com/api/oauth2/authorize?client_id=697487580522086431&permissions=8&scope=bot) \n**Support server:** [Join](https://discord.gg/S9BEBux)')
     e.set_author(name='Info about Tools')
     e.set_thumbnail(url=bot.avatar_url)
     e.set_footer(text=f'Invoked by {ctx.message.author}')
