@@ -262,7 +262,7 @@ async def credits(ctx): # credits of the developer
     bot = client.get_user(697487580522086431)
     e = discord.Embed(color=0x7289DA)
     e.set_author(name='Developer of Tools', icon_url=bot.avatar_url)
-    e.add_field(name='**<:Verified:697810401496137840> Contact info**', value='<:discord:697812138772660274> Discord: `EzZz#001` \n<:logotwitter:697811990084714568>  Twitter: [@EzZz1337](https://twitter.com/ezzz1337) \n<:Website:697812224193986630> Website: [Click here](https://ezzz0099.ezzz1337.repl.co)', inline=False)
+    e.add_field(name='**<:Verified:697810401496137840> Contact info**', value='<:discord:697812138772660274> Discord: `EzZz#001` \n<:logotwitter:697811990084714568>  Twitter: [@EzZz1337](https://twitter.com/ezzz1337) \n<:GitHub:705804702201413694> GitHub: [EzZz1337](https://github.com/ezzz1337) \n<:Website:697812224193986630> Website: [Click here](https://ezzz0099.ezzz1337.repl.co)', inline=False)
     e.set_footer(text='Contact me, if you need help')
     await ctx.send(embed=e)
 
@@ -270,7 +270,7 @@ async def credits(ctx): # credits of the developer
 @client.command()
 async def botinfo(ctx): # info about teh bot
     bot = client.get_user(697487580522086431)
-    e = discord.Embed(color=0x7289DA, description=F'**Name:** {bot} \n**ID:** {bot.id} \n**Prefix:** + \n \n**Servers:** {len(client.guilds)} \n**Members:** {len(set(client.get_all_members()))} \n**Ping:** {round(client.latency * 1000)}ms \n \n**Library:** discord.py \n**Developer:** EzZz#0001 \n**Bot invite:** [Click here](https://discordapp.com/api/oauth2/authorize?client_id=697487580522086431&permissions=8&scope=bot) \n**Support server:** [Join](https://discord.gg/S9BEBux)')
+    GitHub Repo:** [Click here](https://github.com/EzZz1337/Tools) \n**Bot invite:** [Click here](https://discordapp.com/api/oauth2/authorize?client_id=697487580522086431&permissions=8&scope=bot) \n**Support server:** [Join](https://discord.gg/S9BEBux)')
     e.set_author(name='Info about Tools')
     e.set_thumbnail(url=bot.avatar_url)
     e.set_footer(text=f'Invoked by {ctx.message.author}')
