@@ -115,7 +115,7 @@ async def help(ctx): # The help command
     e.set_footer(text=f'Invoked by {ctx.message.author}', icon_url=ctx.message.author.avatar_url)
     e.add_field(name='**<:Filter:697601802455220277> Word Filter**', value='+add `[word]` **|** Adds a word to the filter \n+remove `[word]` **|** Removes a word from the filter \n+showlist **|** Shows a list of the filtered words', inline=False)
     e.add_field(name='**<:dnd:705582091106123786> Warn System**', value='**If the user gets their 3rd warn, they will automatically get banned** \n+warn `[mention or id]` `[reason]` **|** Warns the user \n+warnings `[mention or id]` **|** Shows the warnings of the user \n+clearwarns `[mention or id]` **|** Clears all warnings of the user', inline=False)
-    e.add_field(name='**<:hse:697604738631467008> User Commands**', value='+av `[ID or mention]` **|** Shows the avatar \n+addrole `[ID or mention]` `[role ID/mention/name]` **|** Adds a specific role \n+removerole `[ID or mention]` `[role ID/mention/name]` **|** Removes a specific role\n +info `[ID or mention]` **|** Shows info about the user \n+nickname `[ID or mention]` `[nickname]` **|** Changes the nickname of the member', inline=False)
+    e.add_field(name='**<:hse:697604738631467008> User Commands**', value='+av `[ID or mention]` **|** Shows the avatar \n+addrole `[ID or mention]` `[role ID/mention/name]` **|** Adds a specific role \n+removerole `[ID or mention]` `[role ID/mention/name]` **|** Removes a specific role\n +info `[ID or mention]` **|** Shows info about the user \n+nickname `[ID or mention]` `[nickname]` **|** Changes the nickname of the member \n+hug `[mention or id]` **|** Hugs the user \n+fight `[mention or id]` **|** Fights the user', inline=False)
     e.add_field(name='**<:Mod:697605229671350292> Mod Commands**', value='+setlog `[ID or mention]` **|** Sets a log channel \n+setwelcome `[ID or mention]` **|** Sets a welcome channel \n+setmsg `[text]` **|** Sets a welcome message \n+welcomestatus **|** Shows the current welcome message & channel \n+ban `[ID or mention]` `[reason]` **|** Bans a user \n+kick `[ID or mention]` `[reason]` **|** Kicks the user \n +lock `[channel]` `[time in seconds]` **|** Locks a channel \n +purge `[amount]` **|** Purges a specific amount of messages \n+slowmode `[mention or ID]` `[time in seconds]` **|** Sets the channel slowmode \n+guildinfo **|** Shows info about the guild ' , inline=False)
     e.add_field(name='**<:Tools:697605550623555635> Bot Commands**', value='+credits **|** Shows socials of the developers \n+botinfo **|** Shows info about the bot \n+support **|** Shows invite link to the support server \n+help **|** Shows this help message', inline=False)
     await ctx.send(embed=e)
@@ -511,6 +511,37 @@ async def welcomestatus(ctx): # shows the current welcome message & channel
         await ctx.send("Sorry, but either you don't have set a welcome message or a welcome channel. Please set both to see the server welcoming status.")
 
 
+@client.command()
+async def hug(ctx, member: discord.Member = None): # hug a member
+    if member == None:
+        await ctx.send('Who do you want to hug?')
+        return
+    if member == ctx.message.author:
+        await ctx.send("Sorrry, but you can't hug yourself.")
+        return
+    if member == member.id:
+        member = member
+    await ctx.send(f"{member.mention}, {ctx.message.author.name} just gave you a big big hug!")
+
+
+
+@client.command()
+async def fight(ctx, member: discord.Member = None): # fight a member
+    if member == None:
+        await ctx.send('How to you want to attack?')
+        return
+    if member == ctx.message.author:
+        await ctx.send("Sorrry, but you can't fight yourself.")
+        return
+    if member == member.id:
+        member = member
+    ans = [f"{ctx.message.author.name} is fighting {member.mention}, but hurt themselves in confusion!",
+            f"{ctx.message.author.name} is fighting {member.mention}, but they stumbled over their shoelaces!",
+            f"{ctx.message.author.name} is fighting {member.mention}, but they tripped over a rock and fell in the ocean!"]
+    await ctx.send(random.choice(ans))                  
+                      
+                      
+                      
 
 @client.command()
 @commands.has_permissions(ban_members=True)
