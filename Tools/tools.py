@@ -517,7 +517,7 @@ async def hug(ctx, member: discord.Member = None): # hug a member
         await ctx.send('Who do you want to hug?')
         return
     if member == ctx.message.author:
-        await ctx.send("Sorrry, but you can't hug yourself.")
+        await ctx.send("Sorry, but you can't hug yourself.")
         return
     if member == member.id:
         member = member
@@ -528,10 +528,10 @@ async def hug(ctx, member: discord.Member = None): # hug a member
 @client.command()
 async def fight(ctx, member: discord.Member = None): # fight a member
     if member == None:
-        await ctx.send('How to you want to attack?')
+        await ctx.send('Who to you want to attack?')
         return
     if member == ctx.message.author:
-        await ctx.send("Sorrry, but you can't fight yourself.")
+        await ctx.send("Sorry, but you can't fight yourself.")
         return
     if member == member.id:
         member = member
@@ -540,7 +540,7 @@ async def fight(ctx, member: discord.Member = None): # fight a member
             f"{ctx.message.author.name} is fighting {member.mention}, but they tripped over a rock and fell in the ocean!"]
     await ctx.send(random.choice(ans))                  
                       
-                      
+                       
                       
 
 @client.command()
