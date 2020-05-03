@@ -120,7 +120,7 @@ async def help(ctx): # The help command
     e.add_field(name='**<:dnd:705582091106123786> Warn System**', value='**If the user gets their 3rd warn, they will automatically get banned** \n+warn `[mention or id]` `[reason]` **|** Warns the user \n+warnings `[mention or id]` **|** Shows the warnings of the user \n+clearwarns `[mention or id]` **|** Clears all warnings of the user', inline=False)
     e.add_field(name='**📨 Modmail System**', value='+modmail enable **|** Enables the Modmail system \n+modmail disable **|** Disables the Modmail system \n+modmail send `[text]` **|** Sends a message to the mods \n+modmail modchannel `[ID or mention]` **|** Sets a channel for incoming messages \n+modmail userchannel `[ID or mention]` **|** Sets a channel for the users \n+modmail respond `[ID or mention]` `[text]` **|** Responds to a message \n+modmail status **|** Shows the current Modmail system status', inline=False)
     e.add_field(name='**<:hse:697604738631467008> User Commands**', value='+av `[ID or mention]` **|** Shows the avatar \n+addrole `[ID or mention]` `[role ID/mention/name]` **|** Adds a specific role \n+removerole `[ID or mention]` `[role ID/mention/name]` **|** Removes a specific role\n +info `[ID or mention]` **|** Shows info about the user \n+nickname `[ID or mention]` `[nickname]` **|** Changes the nickname of the member \n+hug `[mention or id]` **|** Hugs the user \n+fight `[mention or id]` **|** Fights the user', inline=False)
-    e.add_field(name='**<:Mod:697605229671350292> Mod Commands**', value='+setlog `[ID or mention]` **|** Sets a log channel \n+ban `[ID or mention]` `[reason]` **|** Bans a user \n+kick `[ID or mention]` `[reason]` **|** Kicks the user \n +lock `[channel]` `[time in seconds]` **|** Locks a channel \n +purge `[amount]` **|** Purges a specific amount of messages \n+slowmode `[mention or ID]` `[time in seconds]` **|** Sets the channel slowmode \n+guildinfo **|** Shows info about the guild ' , inline=False)
+    e.add_field(name='**<:Mod:697605229671350292> Mod Commands**', value='+setlog `[ID or mention]` **|** Sets a log channel \n+softban `[ID or mention]` `[reason]` **|** Softbans a member \n+ban `[ID or mention]` `[reason]` **|** Bans a user \n+kick `[ID or mention]` `[reason]` **|** Kicks the user \n +lock `[channel]` `[time in seconds]` **|** Locks a channel \n +purge `[amount]` **|** Purges a specific amount of messages \n+slowmode `[mention or ID]` `[time in seconds]` **|** Sets the channel slowmode \n+guildinfo **|** Shows info about the guild ' , inline=False)
     e.add_field(name='**<:welcome:706272444864004106> Welcome System**', value='+setwelcome `[ID or mention]` **|** Sets a welcome channel \n+setmsg `[text]` **|** Sets a welcome message \n+welcomestatus **|** Shows the current welcome message & channel', inline=False)
     e.add_field(name='**<:Tools:697605550623555635> Bot Commands**', value='+credits **|** Shows socials of the developers \n+botinfo **|** Shows info about the bot \n+support **|** Shows invite link to the support server \n+help **|** Shows this help message', inline=False)
     await ctx.send(embed=e)
@@ -275,6 +275,31 @@ async def lock(ctx, channel: discord.TextChannel = None, time: int = None): # lo
     await asyncio.sleep(time)
     await channel.set_permissions(ctx.message.guild.default_role, send_messages=True)
     await channel.send('Channel is now unlocked again.')
+                              
+                              
+@client.command()
+@commands.has_permissions(ban_members=True)
+async def softban(ctx, member: discord.Member = None, *, reason = None):
+    guild = ctx.message.guild
+    if member == None:
+        await ctx.send('Please mention a valid user or enter a valid user id.')
+        return
+    if member == ctx.message.author:
+        await ctx.send("Sorry, but you can't ban yourself.")
+        return
+    if member == member.id:
+        member = member
+    if reason == None:
+        reason = 'No reason provided'
+    await guild.ban(user=member, reason=reason, delete_message_days=7)
+    await guild.unban(user=member, reason='Softban')
+    await ctx.send(f'Succesfully softbanned user `{member}`')
+    e = discord.Embed(color=0x7289DA, description=f"**User:** {member} (ID: **{member.id}**) \n**Moderator:** {ctx.message.author} (ID: **{ctx.message.author.id}**) \n**Reason:** {reason}")
+    e.set_author(name='User softbanned')
+    f = open(f"{guild.id}-log.txt", "r")
+    channel_id = f.read()
+    channel = await client.fetch_channel(channel_id)
+    await channel.send(embed=e)
 
 
 @client.command()
