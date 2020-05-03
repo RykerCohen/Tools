@@ -1,4 +1,4 @@
-iimport discord
+import discord
 from discord.ext import commands
 from discord.ext.commands import Bot
 import random
@@ -29,6 +29,9 @@ async def on_guild_join(guild): # when the bot joins a guild
     f = open(f"{guild.id}-words.txt", "w")
     f.write(f"nigga\nbitch\nnegga\nfuck you\nson of a bitch\nwhore\nfuck u\nbastard")
     f.close()
+    f2 = open(f"{guild.id}-modmail-checking", "w")
+    f2.write('false')
+    f2.close()
     channel = client.get_channel(697830313879011389)
     await channel.send(f'New guild: **{guild.name}** (ID: **{guild.id}**)')
     overwrites = {
@@ -115,6 +118,7 @@ async def help(ctx): # The help command
     e.set_footer(text=f'Invoked by {ctx.message.author}', icon_url=ctx.message.author.avatar_url)
     e.add_field(name='**<:Filter:697601802455220277> Word Filter**', value='+add `[word]` **|** Adds a word to the filter \n+remove `[word]` **|** Removes a word from the filter \n+showlist **|** Shows a list of the filtered words', inline=False)
     e.add_field(name='**<:dnd:705582091106123786> Warn System**', value='**If the user gets their 3rd warn, they will automatically get banned** \n+warn `[mention or id]` `[reason]` **|** Warns the user \n+warnings `[mention or id]` **|** Shows the warnings of the user \n+clearwarns `[mention or id]` **|** Clears all warnings of the user', inline=False)
+    e.add_field(name='**📨 Modmail System**', value='+modmail enable **|** Enables the Modmail system \n+modmail disable **|** Disables the Modmail system \n+modmail send `[text]` **|** Sends a message to the mods \n+modmail modchannel `[ID or mention]` **|** Sets a channel for incoming messages \n+modmail userchannel `[ID or mention]` **|** Sets a channel for the users \n+modmail respond `[ID or mention]` `[text]` **|** Responds to a message \n+modmail status **|** Shows the current Modmail system status', inline=False)
     e.add_field(name='**<:hse:697604738631467008> User Commands**', value='+av `[ID or mention]` **|** Shows the avatar \n+addrole `[ID or mention]` `[role ID/mention/name]` **|** Adds a specific role \n+removerole `[ID or mention]` `[role ID/mention/name]` **|** Removes a specific role\n +info `[ID or mention]` **|** Shows info about the user \n+nickname `[ID or mention]` `[nickname]` **|** Changes the nickname of the member \n+hug `[mention or id]` **|** Hugs the user \n+fight `[mention or id]` **|** Fights the user', inline=False)
     e.add_field(name='**<:Mod:697605229671350292> Mod Commands**', value='+setlog `[ID or mention]` **|** Sets a log channel \n+ban `[ID or mention]` `[reason]` **|** Bans a user \n+kick `[ID or mention]` `[reason]` **|** Kicks the user \n +lock `[channel]` `[time in seconds]` **|** Locks a channel \n +purge `[amount]` **|** Purges a specific amount of messages \n+slowmode `[mention or ID]` `[time in seconds]` **|** Sets the channel slowmode \n+guildinfo **|** Shows info about the guild ' , inline=False)
     e.add_field(name='**<:welcome:706272444864004106> Welcome System**', value='+setwelcome `[ID or mention]` **|** Sets a welcome channel \n+setmsg `[text]` **|** Sets a welcome message \n+welcomestatus **|** Shows the current welcome message & channel', inline=False)
@@ -173,16 +177,31 @@ async def nickname(ctx, member: discord.Member = None, *, name = None): # change
 
 
 @client.command()
-@commands.has_permissions(manage_messages=True)
-async def info(ctx, member: discord.Member = None): # shows info about the user
-    if member == None:
-        member = ctx.message.author
-    elif member == member.id:
-        member = member
-    e = discord.Embed(color=0x7289DA, title=f'User Info for {member}', description=f"**Name:** {member} \n**Nickname:** {member.nick} \n**ID:** {member.id} \n \n**Joined Discord:** {member.created_at.strftime('%a, %m/%e/%Y, %H:%M')} \n**Joined server:** {member.joined_at.strftime('%a, %m/%e/%Y, %H:%M')} \n**Highest role:** {member.top_role.mention}")
-    e.set_footer(text=f'Invoked by {ctx.message.author}')
-    e.set_thumbnail(url=member.avatar_url)
-    await ctx.send(embed=e)
+async def info(ctx, member: discord.Member = None):
+    guild = client.get_guild(701041308810084362)
+    if ctx.message.guild == guild: # special version for a specific guild
+        if member == None:
+            member = ctx.message.author
+        elif member == member.id:
+            member = member
+        e = discord.Embed(color=0x7289DA, title=f'User Info for {member}', description=f"Name: {member} \nNickname: {member.nick} \nID: {member.id} \n \nJoined Discord: {member.created_at.strftime('%a, %m/%e/%Y, %H:%M')} \nJoined server: {member.joined_at.strftime('%a, %m/%e/%Y, %H:%M')} \nHighest role: {member.top_role.mention}")
+        e.set_footer(text=f'Invoked by {ctx.message.author}')
+        e.set_thumbnail(url=member.avatar_url)
+        await ctx.send(embed=e)
+        return
+    else:
+        if not ctx.message.author.guild_permissions.manage_messages:
+            await ctx.send("Sorry, but you don't have permissions to do this action.")
+            return
+        else:
+            if member == None:
+                member = ctx.message.author
+            elif member == member.id:
+                member = member
+            e = discord.Embed(color=0x7289DA, title=f'User Info for {member}', description=f"Name: {member} \nNickname: {member.nick} \nID: {member.id} \n \nJoined Discord: {member.created_at.strftime('%a, %m/%e/%Y, %H:%M')} \nJoined server: {member.joined_at.strftime('%a, %m/%e/%Y, %H:%M')} \nHighest role: {member.top_role.mention}")
+            e.set_footer(text=f'Invoked by {ctx.message.author}')
+            e.set_thumbnail(url=member.avatar_url)
+            await ctx.send(embed=e)
 
 
 
@@ -565,6 +584,183 @@ async def fight(ctx, member: discord.Member = None): # fight a member
             f"{ctx.message.author.name} is fighting {member.mention}, but they stumbled over their shoelaces!",
             f"{ctx.message.author.name} is fighting {member.mention}, but they tripped over a rock and fell in the ocean!"]
     await ctx.send(random.choice(ans))
+
+
+
+@client.group()
+async def modmail(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send('Please enter a modmail command.')
+
+
+@modmail.command()
+async def send(ctx, *, text = None):
+    guild = ctx.message.guild
+    f = open(f"{guild.id}-modmail-checking.txt", "r")
+    global check
+    check = f.read()
+    if check == 'false':
+        await ctx.send('Sorry, but the Modmail system is disabled on this server.')
+        return
+    if check == 'true':
+        if not os.path.exists(f"{guild.id}-modmail-users.txt"):
+            await ctx.send('Please set a modmail channel for the users')
+            return
+        if not os.path.exists(f"{guild.id}-modmail-mods.txt"):
+            await ctx.send('Please set a modmail channel for the mods')
+            return
+        if os.path.exists(f"{guild.id}-modmail-users.txt") & os.path.exists(f"{guild.id}-modmail-mods.txt"):
+            f1 = open(f"{guild.id}-modmail-users.txt", "r")
+            user_channel_id = f1.read()
+            global user_channel
+            user_channel = await client.fetch_channel(user_channel_id)
+            # --------------------------------------------------------
+            f2 = open(f"{guild.id}-modmail-mods.txt", "r")
+            mod_channel_id = f2.read()
+            global mod_channel
+            mod_channel = await client.fetch_channel(mod_channel_id)
+            # --------------------------------------------------------
+            if ctx.message.channel != user_channel:
+                await ctx.send(f"Please user the correct modmail channel: {user_channel.mention}")
+                return
+            else:
+                await mod_channel.send(f"─────────────────── \nNew message by **{ctx.message.author}**: \n \n`{text}` \n \nUser ID: **{ctx.message.author.id}**")
+                await ctx.message.author.send(f'Hey **{ctx.message.author.name}**, we received your message & will respond as fast as possible.')
+                await user_channel.purge(limit=2)
+
+
+@modmail.command()
+@commands.has_permissions(administrator=True)
+async def enable(ctx):
+    guild = ctx.message.guild
+    f = open(f"{guild.id}-modmail-checking.txt", "w")
+    f.write('true')
+    f.close()
+    await ctx.send('Succesfully enabled the Modmail system. Please set the user channel with **+modmail userchannel CHANNEL** & the mod channel with **+modmail modchannel CHANNEL**.')
+
+
+@modmail.command()
+@commands.has_permissions(administrator=True)
+async def disable(ctx):
+    guild = ctx.message.guild
+    f = open(f"{guild.id}-modmail-checking.txt", "w")
+    f.write('false')
+    f.close()
+    await ctx.send('Succesfully disabled the Modmail system. You can enable the system again by typing **+modmail enable**.')
+
+
+@modmail.command()
+@commands.has_permissions(administrator=True)
+async def modchannel(ctx, channel: discord.TextChannel = None):
+    guild = ctx.message.guild
+    if channel == None:
+        await ctx.send('Please mention a valid channel or enter a valid channel id.')
+        return
+    f2 = open(f"{guild.id}-modmail-checking.txt", "r")
+    global check
+    check = f2.read()
+    if check == 'false':
+        await ctx.send('Sorry, but the Modmail system is disabled on this server.')
+        return
+    if check == 'true':
+        if not os.path.exists(f"{guild.id}-modmail-mods.txt"):
+            with open(f"{guild.id}-modmail-mods.txt", "w") as f10:
+                f10.write(f"{channel.id}")
+                f10.close()
+                await ctx.send(f"Successfully set the modmail mod channel to {channel.mention}")
+                return
+        if os.path.exists(f"{guild.id}-modmail-mods.txt"):
+            f = open(f"{guild.id}-modmail-mods.txt", "w")
+            f.write(f"{channel.id}")
+            f.close()
+            await ctx.send(f"Successfully set the modmail mod channel to {channel.mention}")
+
+
+
+@modmail.command()
+@commands.has_permissions(ban_members=True)
+async def respond(ctx, member: discord.Member = None, *, text = None):
+    guild = ctx.message.guild
+    f2 = open(f"{guild.id}-modmail-checking.txt", "r")
+    global check
+    check = f2.read()
+    if check == 'false':
+        await ctx.send('Sorry, but the Modmail system is disabled on this server.')
+        return
+    if check == 'true':
+        if member == None:
+            await ctx.send('Please enter mention a valid member or enter a valid id.')
+            return
+        if text == None:
+            await ctx.send('Please enter a valid text.')
+            return
+        if member == member.id:
+            member = member
+        await member.send(f"Answer to your message from the **{guild.name}** server. \n \n**{ctx.message.author}**: {text}")
+        await ctx.send('Responded!')
+
+
+@modmail.command()
+@commands.has_permissions(administrator=True)
+async def userchannel(ctx, channel: discord.TextChannel = None):
+    guild = ctx.message.guild
+    if channel == None:
+        await ctx.send('Please mention a valid channel or enter a valid channel id.')
+        return
+    f2 = open(f"{guild.id}-modmail-checking.txt", "r")
+    global check
+    check = f2.read()
+    if check == 'false':
+        await ctx.send('Sorry, but the Modmail system is disabled on this server.')
+        return
+    if check == 'true':
+        if not os.path.exists(f"{guild.id}-modmail-users.txt"):
+            with open(f"{guild.id}-modmail-users.txt", "w") as f12:
+                f12.write(f"{channel.id}")
+                f12.close()
+                await ctx.send(f"Successfully set the modmail user channel to {channel.mention}")
+                return
+        if os.path.exists(f"{guild.id}-modmail-users.txt"):
+            f = open(f"{guild.id}-modmail-users.txt", "w")
+            f.write(f"{channel.id}")
+            f.close()
+            await ctx.send(f"Successfully set the modmail user channel to {channel.mention}")
+
+
+@modmail.command()
+@commands.has_permissions(administrator=True)
+async def status(ctx):
+    guild = ctx.message.guild
+    f = open(f"{guild.id}-modmail-checking.txt", "r")
+    global check
+    check = f.read()
+    if check == 'false':
+        await ctx.send('Sorry, but the Modmail system is disabled on this server.')
+        return
+    if check == 'true':
+        if not os.path.exists(f"{guild.id}-modmail-users.txt"):
+            await ctx.send('Please set a modmail channel for the users')
+            return
+        if not os.path.exists(f"{guild.id}-modmail-mods.txt"):
+            await ctx.send('Please set a modmail channel for the mods')
+            return
+        if os.path.exists(f"{guild.id}-modmail-users.txt") & os.path.exists(f"{guild.id}-modmail-mods.txt"):
+            f1 = open(f"{guild.id}-modmail-users.txt")
+            user_channel_id = f1.read()
+            global user_channel
+            user_channel = await client.fetch_channel(user_channel_id)
+            # --------------------------------------------------------
+            f2 = open(f"{guild.id}-modmail-mods.txt")
+            mod_channel_id = f2.read()
+            global mod_channel
+            mod_channel = await client.fetch_channel(mod_channel_id)
+            # --------------------------------------------------------
+            e = discord.Embed(color=0x7289DA)
+            e.set_author(name=f'Server Mdomail status for {guild.name}', icon_url=guild.icon_url)
+            e.add_field(name='**Mod channel:**', value=f'{mod_channel.mention}', inline=False)
+            e.add_field(name='**User channel:**', value=f'{user_channel.mention}', inline=False)
+            e.set_footer(text=f'Invoked by {ctx.message.author}', icon_url=ctx.message.author.avatar_url)
+            await ctx.send(embed=e)
 
 
 
