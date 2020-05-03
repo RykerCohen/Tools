@@ -1,4 +1,4 @@
-import discord
+iimport discord
 from discord.ext import commands
 from discord.ext.commands import Bot
 import random
@@ -116,7 +116,8 @@ async def help(ctx): # The help command
     e.add_field(name='**<:Filter:697601802455220277> Word Filter**', value='+add `[word]` **|** Adds a word to the filter \n+remove `[word]` **|** Removes a word from the filter \n+showlist **|** Shows a list of the filtered words', inline=False)
     e.add_field(name='**<:dnd:705582091106123786> Warn System**', value='**If the user gets their 3rd warn, they will automatically get banned** \n+warn `[mention or id]` `[reason]` **|** Warns the user \n+warnings `[mention or id]` **|** Shows the warnings of the user \n+clearwarns `[mention or id]` **|** Clears all warnings of the user', inline=False)
     e.add_field(name='**<:hse:697604738631467008> User Commands**', value='+av `[ID or mention]` **|** Shows the avatar \n+addrole `[ID or mention]` `[role ID/mention/name]` **|** Adds a specific role \n+removerole `[ID or mention]` `[role ID/mention/name]` **|** Removes a specific role\n +info `[ID or mention]` **|** Shows info about the user \n+nickname `[ID or mention]` `[nickname]` **|** Changes the nickname of the member \n+hug `[mention or id]` **|** Hugs the user \n+fight `[mention or id]` **|** Fights the user', inline=False)
-    e.add_field(name='**<:Mod:697605229671350292> Mod Commands**', value='+setlog `[ID or mention]` **|** Sets a log channel \n+setwelcome `[ID or mention]` **|** Sets a welcome channel \n+setmsg `[text]` **|** Sets a welcome message \n+welcomestatus **|** Shows the current welcome message & channel \n+ban `[ID or mention]` `[reason]` **|** Bans a user \n+kick `[ID or mention]` `[reason]` **|** Kicks the user \n +lock `[channel]` `[time in seconds]` **|** Locks a channel \n +purge `[amount]` **|** Purges a specific amount of messages \n+slowmode `[mention or ID]` `[time in seconds]` **|** Sets the channel slowmode \n+guildinfo **|** Shows info about the guild ' , inline=False)
+    e.add_field(name='**<:Mod:697605229671350292> Mod Commands**', value='+setlog `[ID or mention]` **|** Sets a log channel \n+ban `[ID or mention]` `[reason]` **|** Bans a user \n+kick `[ID or mention]` `[reason]` **|** Kicks the user \n +lock `[channel]` `[time in seconds]` **|** Locks a channel \n +purge `[amount]` **|** Purges a specific amount of messages \n+slowmode `[mention or ID]` `[time in seconds]` **|** Sets the channel slowmode \n+guildinfo **|** Shows info about the guild ' , inline=False)
+    e.add_field(name='**<:welcome:706272444864004106> Welcome System**', value='+setwelcome `[ID or mention]` **|** Sets a welcome channel \n+setmsg `[text]` **|** Sets a welcome message \n+welcomestatus **|** Shows the current welcome message & channel', inline=False)
     e.add_field(name='**<:Tools:697605550623555635> Bot Commands**', value='+credits **|** Shows socials of the developers \n+botinfo **|** Shows info about the bot \n+support **|** Shows invite link to the support server \n+help **|** Shows this help message', inline=False)
     await ctx.send(embed=e)
 
@@ -262,7 +263,7 @@ async def credits(ctx): # credits of the developer
     bot = client.get_user(697487580522086431)
     e = discord.Embed(color=0x7289DA)
     e.set_author(name='Developer of Tools', icon_url=bot.avatar_url)
-    e.add_field(name='**<:Verified:697810401496137840> Contact info**', value='<:discord:697812138772660274> Discord: `EzZz#001` \n<:logotwitter:697811990084714568>  Twitter: [@EzZz1337](https://twitter.com/ezzz1337) \n<:GitHub:705804702201413694> GitHub: [EzZz1337](https://github.com/ezzz1337) \n<:Website:697812224193986630> Website: [Click here](https://ezzz0099.ezzz1337.repl.co)', inline=False)
+    e.add_field(name='**<:Verified:697810401496137840> Contact info**', value='<:discord:697812138772660274> Discord: `EzZz#0001` \n<:logotwitter:697811990084714568>  Twitter: [@EzZz1337](https://twitter.com/ezzz1337) \n<:GitHub:705804702201413694> GitHub: [EzZz1337](https://github.com/ezzz1337) \n<:Website:697812224193986630> Website: [Click here](https://ezzz0099.ezzz1337.repl.co)', inline=False)
     e.set_footer(text='Contact me, if you need help')
     await ctx.send(embed=e)
 
@@ -511,6 +512,31 @@ async def welcomestatus(ctx): # shows the current welcome message & channel
         await ctx.send("Sorry, but either you don't have set a welcome message or a welcome channel. Please set both to see the server welcoming status.")
 
 
+
+@client.command()
+@commands.has_permissions(ban_members=True)
+async def guildinfo(ctx): # shows info aout the guild
+    g = ctx.guild
+    e = discord.Embed(color=0x7289DA, title=f'__Guild info for {g.name}__', description=f'Name: **{g.name}** \nID: **{g.id}** \nOwner: {g.owner.mention} \nOwner ID: **{g.owner_id}** \n \nRoles: **{len(g.roles)}** \nEmojis: **{len(g.emojis)}** \n \nCategories: **{len(g.categories)}** \nVoice channels: **{len(g.voice_channels)}** \nText channels: **{len(g.text_channels)}** \n \nMax members: **{g.max_members}** \nMembers: **{len(g.members)}**')
+    e.set_thumbnail(url=g.icon_url)
+    e.set_footer(text=f'Invoked by {ctx.message.author}', icon_url=ctx.message.author.avatar_url)
+    await ctx.send(embed=e)
+
+
+
+@client.event
+async def on_member_join(member): # welcome event
+    g = member.guild
+    f = open(f"{g.id}-welcome-channel.txt", "r")
+    welcome_channel_id = f.read()
+    welcome_channel = await client.fetch_channel(welcome_channel_id)
+    f2 = open(f"{g.id}-welcome-msg.txt", "r")
+    welcome_msg = f2.read()
+    await welcome_channel.send(f"{welcome_msg}")
+
+
+
+
 @client.command()
 async def hug(ctx, member: discord.Member = None): # hug a member
     if member == None:
@@ -538,31 +564,7 @@ async def fight(ctx, member: discord.Member = None): # fight a member
     ans = [f"{ctx.message.author.name} is fighting {member.mention}, but hurt themselves in confusion!",
             f"{ctx.message.author.name} is fighting {member.mention}, but they stumbled over their shoelaces!",
             f"{ctx.message.author.name} is fighting {member.mention}, but they tripped over a rock and fell in the ocean!"]
-    await ctx.send(random.choice(ans))                  
-                      
-                       
-                      
-
-@client.command()
-@commands.has_permissions(ban_members=True)
-async def guildinfo(ctx): # shows info aout the guild
-    g = ctx.guild
-    e = discord.Embed(color=0x7289DA, title=f'__Guild info for {g.name}__', description=f'Name: **{g.name}** \nID: **{g.id}** \nOwner: {g.owner.mention} \nOwner ID: **{g.owner_id}** \n \nRoles: **{len(g.roles)}** \nEmojis: **{len(g.emojis)}** \n \nCategories: **{len(g.categories)}** \nVoice channels: **{len(g.voice_channels)}** \nText channels: **{len(g.text_channels)}** \n \nMax members: **{g.max_members}** \nMembers: **{len(g.members)}**')
-    e.set_thumbnail(url=g.icon_url)
-    e.set_footer(text=f'Invoked by {ctx.message.author}', icon_url=ctx.message.author.avatar_url)
-    await ctx.send(embed=e)
-
-
-
-@client.event
-async def on_member_join(member): # welcome event
-    g = member.guild
-    f = open(f"{g.id}-welcome-channel.txt", "r")
-    welcome_channel_id = f.read()
-    welcome_channel = await client.fetch_channel(welcome_channel_id)
-    f2 = open(f"{g.id}-welcome-msg.txt", "r")
-    welcome_msg = f2.read()
-    await welcome_channel.send(f"{welcome_msg}")
+    await ctx.send(random.choice(ans))
 
 
 
