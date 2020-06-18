@@ -7,7 +7,7 @@ import sys
 import fileinput
 import asyncio
 
-client: Bot = commands.Bot(command_prefix='+') # Prefrix of the bot
+client: Bot = commands.Bot(command_prefix='+') # Prefix of the bot
 client.remove_command('help') # removes the basic help command
 TOKEN = '' # Token
 
