@@ -9,7 +9,7 @@ import asyncio
 
 client: Bot = commands.Bot(command_prefix='+') # Prefrix of the bot
 client.remove_command('help') # removes the basic help command
-TOKEN = ''
+TOKEN = '' # Token
 
 
 #----------------------------------------
@@ -18,7 +18,7 @@ TOKEN = ''
 
 @client.event
 async def on_ready():
-    await  client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='+help'))
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='+help'))
     print(f'Logged in as {client.user}')
     print('----------------------------')
     print(f'ID: {client.user.id}')
@@ -46,6 +46,7 @@ async def on_guild_join(guild): # when the bot joins a guild
     welcome_embed.add_field(name='**Other useful things:**', value="You see all commands by typing **+help**. \nIf you need help with the bot, you can join the [support server](https://discord.gg/S9BEBux) and we'll help you there. \nYou think the bot is cool & your friends might be interested in it as well? Feel free to invite the bot via [this link](https://discordapp.com/api/oauth2/authorize?client_id=697487580522086431&permissions=8&scope=bot) \nOne last thing: Yes, you can delete this channel if you want to 😉", inline=False)
     welcome_embed.set_footer(text=f'Bot ID: {client.user.id}', icon_url=guild.icon_url)
     await channel.send(embed=welcome_embed)
+    open(f"./MuteRoles/{guild.id}-mute-role.txt", "x")
 
 
 @client.event
@@ -55,7 +56,7 @@ async def on_guild_remove(guild): # when the bot gets removed from a guild
 
 
 @client.event
-async def on_message(message): # Word filter event  	                                                                                                                                 
+async def on_message(message): # Word filter event  	                                                           ffggghhuhggfdrsw                                                                      
     if message.author.guild_permissions.ban_members:
         await client.process_commands(message)
         return
@@ -110,21 +111,42 @@ async def showlist(ctx): # shows the filter
 
 
 
-@client.command()
+@client.group()
 async def help(ctx): # The help command
+    if ctx.invoked_subcommand is None:
+        bot = client.get_user(697487580522086431)
+        e = discord.Embed(color=0x7289DA)
+        e.set_author(name='Commands List', icon_url=bot.avatar_url)
+        e.set_footer(text=f'Invoked by {ctx.message.author}', icon_url=ctx.message.author.avatar_url)
+        e.add_field(name='**<:585765206769139723:701821061263785985> Word Filter**', value='+add `[word]` **|** Adds a word to the filter \n+remove `[word]` **|** Removes a word from the filter \n+showlist **|** Shows a list of the filtered words', inline=False)
+        e.add_field(name='**<:dnd:705582091106123786> Warn System**', value='**If the user gets their 3rd warn, they will automatically get banned** \n+warn `[mention or id]` `[reason]` **|** Warns the user \n+warnings `[mention or id]` **|** Shows the warnings of the user \n+clearwarns `[mention or id]` **|** Clears all warnings of the user', inline=False)
+        e.add_field(name='**📨 Modmail System**', value='+modmail enable **|** Enables the Modmail system \n+modmail disable **|** Disables the Modmail system \n+modmail send `[text]` **|** Sends a message to the mods \n+modmail modchannel `[ID or mention]` **|** Sets a channel for incoming messages \n+modmail userchannel `[ID or mention]` **|** Sets a channel for the users \n+modmail respond `[ID or mention]` `[text]` **|** Responds to a message \n+modmail status **|** Shows the current Modmail system status', inline=False)
+        e.add_field(name='**<:585765895939424258:701821042183635046> User Commands**', value='+poll `[text]` **|** Creates a classic poll \n +av `[ID or mention]` **|** Shows the avatar \n+addrole `[ID or mention]` `[role ID/mention/name]` **|** Adds a specific role \n+removerole `[ID or mention]` `[role ID/mention/name]` **|** Removes a specific role\n +info `[ID or mention]` **|** Shows info about the user \n+nickname `[ID or mention]` `[nickname]` **|** Changes the nickname of the member \n+hug `[mention or id]` **|** Hugs the user \n+fight `[mention or id]` **|** Fights the user', inline=False)
+        e.add_field(name='**<:Staff:723200944266936411> Mod Commands**', value='+setlog `[ID or mention]` **|** Sets a log channel \n+softban `[ID or mention]` `[reason]`**|** Softbans a member \n+ban `[ID or mention]` `[reason]` **|** Bans a user \n+kick `[ID or mention]` `[reason]` **|** Kicks the user \n +purge `[amount]` **|** Purges a specific amount of messages \n+muterole `[role ID, mention or name]` **|** Sets a mute role \n+mute `[mention or ID]` `[time in minutes]` `[reason]` **|** Mutes a member for a specific amount of time \n+slowmode `[mention or ID]` `[time in seconds]` **|** Sets the channel slowmode \n+guildinfo **|** Shows info about the guild ' , inline=False)
+        e.add_field(name='**<:welcome:706272444864004106> Welcome System**', value='+welcomeinfo **|** Shows a list of usable welcome message args \n+setwelcome `[ID or mention]` **|** Sets a welcome channel \n+setmsg `[text]` **|** Sets a welcome message \n+welcomestatus **|** Shows the current welcome message & channel', inline=False)
+        e.add_field(name='**<:697686848545488986:701821086928732161> Bot Commands**', value='+botinfo **|** Shows info about the bot \n+help `[dm]` **|** Shows this help message. Add **dm** to get the command in DMs', inline=False)
+        await ctx.message.channel.trigger_typing()
+        await ctx.send(embed=e)
+
+
+
+@help.command()
+async def dm(ctx):
     bot = client.get_user(697487580522086431)
     e = discord.Embed(color=0x7289DA)
-    e.set_author(name='Help center for the Tools bot', icon_url=bot.avatar_url)
+    e.set_author(name='Command List', icon_url=bot.avatar_url)
     e.set_footer(text=f'Invoked by {ctx.message.author}', icon_url=ctx.message.author.avatar_url)
-    e.add_field(name='**<:Filter:697601802455220277> Word Filter**', value='+add `[word]` **|** Adds a word to the filter \n+remove `[word]` **|** Removes a word from the filter \n+showlist **|** Shows a list of the filtered words', inline=False)
+    e.add_field(name='**<:585765206769139723:701821061263785985> Word Filter**', value='+add `[word]` **|** Adds a word to the filter \n+remove `[word]` **|** Removes a word from the filter \n+showlist **|** Shows a list of the filtered words', inline=False)
     e.add_field(name='**<:dnd:705582091106123786> Warn System**', value='**If the user gets their 3rd warn, they will automatically get banned** \n+warn `[mention or id]` `[reason]` **|** Warns the user \n+warnings `[mention or id]` **|** Shows the warnings of the user \n+clearwarns `[mention or id]` **|** Clears all warnings of the user', inline=False)
     e.add_field(name='**📨 Modmail System**', value='+modmail enable **|** Enables the Modmail system \n+modmail disable **|** Disables the Modmail system \n+modmail send `[text]` **|** Sends a message to the mods \n+modmail modchannel `[ID or mention]` **|** Sets a channel for incoming messages \n+modmail userchannel `[ID or mention]` **|** Sets a channel for the users \n+modmail respond `[ID or mention]` `[text]` **|** Responds to a message \n+modmail status **|** Shows the current Modmail system status', inline=False)
-    e.add_field(name='**<:hse:697604738631467008> User Commands**', value='+av `[ID or mention]` **|** Shows the avatar \n+addrole `[ID or mention]` `[role ID/mention/name]` **|** Adds a specific role \n+removerole `[ID or mention]` `[role ID/mention/name]` **|** Removes a specific role\n +info `[ID or mention]` **|** Shows info about the user \n+nickname `[ID or mention]` `[nickname]` **|** Changes the nickname of the member \n+hug `[mention or id]` **|** Hugs the user \n+fight `[mention or id]` **|** Fights the user', inline=False)
-    e.add_field(name='**<:Mod:697605229671350292> Mod Commands**', value='+setlog `[ID or mention]` **|** Sets a log channel \n+softban `[ID or mention]` `[reason]` **|** Softbans a member \n+ban `[ID or mention]` `[reason]` **|** Bans a user \n+kick `[ID or mention]` `[reason]` **|** Kicks the user \n +lock `[channel]` `[time in seconds]` **|** Locks a channel \n +purge `[amount]` **|** Purges a specific amount of messages \n+slowmode `[mention or ID]` `[time in seconds]` **|** Sets the channel slowmode \n+guildinfo **|** Shows info about the guild ' , inline=False)
-    e.add_field(name='**<:welcome:706272444864004106> Welcome System**', value='+setwelcome `[ID or mention]` **|** Sets a welcome channel \n+setmsg `[text]` **|** Sets a welcome message \n+welcomestatus **|** Shows the current welcome message & channel', inline=False)
-    e.add_field(name='**<:Tools:697605550623555635> Bot Commands**', value='+credits **|** Shows socials of the developers \n+botinfo **|** Shows info about the bot \n+support **|** Shows invite link to the support server \n+help **|** Shows this help message', inline=False)
-    await ctx.send(embed=e)
-
+    e.add_field(name='**<:585765895939424258:701821042183635046> User Commands**', value='+poll `[text]` **|** Creates a basic poll \n+av `[ID or mention]` **|** Shows the avatar \n+addrole `[ID or mention]` `[role ID/mention/name]` **|** Adds a specific role \n+removerole `[ID or mention]` `[role ID/mention/name]` **|** Removes a specific role\n +info `[ID or mention]` **|** Shows info about the user \n+nickname `[ID or mention]` `[nickname]` **|** Changes the nickname of the member \n+hug `[mention or id]` **|** Hugs the user \n+fight `[mention or id]` **|** Fights the user', inline=False)
+    e.add_field(name='**<:Staff:723200944266936411> Mod Commands**', value='+setlog `[ID or mention]` **|** Sets a log channel \n+softban `[ID or mention]` `[reason]`**|** Softbans a member \n+muterole `[role ID, mention or name]` **|** Sets a mute role \n+mute `[mention or ID]` `[time in minutes]` `[reason]` **|** Mutes a member for a specific amount of time \n+ban `[ID or mention]` `[reason]` **|** Bans a user \n+kick `[ID or mention]` `[reason]` **|** Kicks the user \n +lock `[channel]` `[time in seconds]` **|** Locks a channel \n +purge `[amount]` **|** Purges a specific amount of messages \n+slowmode `[mention or ID]` `[time in seconds]` **|** Sets the channel slowmode \n+guildinfo **|** Shows info about the guild ' , inline=False)
+    e.add_field(name='**<:welcome:706272444864004106> Welcome System**', value='+welcomeinfo **|** Shows a list of usable welcome message args \n+setwelcome `[ID or mention]` **|** Sets a welcome channel \n+setmsg `[text]` **|** Sets a welcome message \n+welcomestatus **|** Shows the current welcome message & channel', inline=False)
+    e.add_field(name='**<:697686848545488986:701821086928732161> Bot Commands**', value='+botinfo **|** Shows info about the bot \n+help `[dm]` **|** Shows this help message. Add **dm** to get the command in DMs', inline=False)
+    await ctx.message.channel.trigger_typing()
+    e2 = discord.Embed(color=0x7289DA, description='Check your private messages! 📬')
+    await ctx.send(embed=e2)
+    await ctx.message.author.send(embed=e)
 
 
 
@@ -137,7 +159,7 @@ async def av(ctx, member: discord.Member = None): # shows the avatar
     elif member == member.id:
         member = member
     e = discord.Embed(color=0x7289DA)
-    e.set_author(name=f"{member}'s avatar (ID: {member.id})")
+    e.set_author(name=f"{member}'s avatar")
     e.set_image(url=member.avatar_url)
     e.set_footer(text=f'Invoked by {ctx.message.author}')
     await ctx.send(embed=e)
@@ -179,12 +201,12 @@ async def nickname(ctx, member: discord.Member = None, *, name = None): # change
 @client.command()
 async def info(ctx, member: discord.Member = None):
     guild = client.get_guild(701041308810084362)
-    if ctx.message.guild == guild: # special version for a specific guild
+    if ctx.message.guild == guild:
         if member == None:
             member = ctx.message.author
         elif member == member.id:
             member = member
-        e = discord.Embed(color=0x7289DA, title=f'User Info for {member}', description=f"Name: {member} \nNickname: {member.nick} \nID: {member.id} \n \nJoined Discord: {member.created_at.strftime('%a, %m/%e/%Y, %H:%M')} \nJoined server: {member.joined_at.strftime('%a, %m/%e/%Y, %H:%M')} \nHighest role: {member.top_role.mention}")
+        e = discord.Embed(color=0x7289DA, title=f'User Info for {member}', description=f"**Name:** {member} \n**Nickname:** {member.nick} \n**ID:** {member.id} \n \n**Joined Discord:** {member.created_at.strftime('%a, %m/%e/%Y, %H:%M')} \n**Joined server:** {member.joined_at.strftime('%a, %m/%e/%Y, %H:%M')} \n**Highest role:** {member.top_role.mention}")
         e.set_footer(text=f'Invoked by {ctx.message.author}')
         e.set_thumbnail(url=member.avatar_url)
         await ctx.send(embed=e)
@@ -198,7 +220,7 @@ async def info(ctx, member: discord.Member = None):
                 member = ctx.message.author
             elif member == member.id:
                 member = member
-            e = discord.Embed(color=0x7289DA, title=f'User Info for {member}', description=f"Name: {member} \nNickname: {member.nick} \nID: {member.id} \n \nJoined Discord: {member.created_at.strftime('%a, %m/%e/%Y, %H:%M')} \nJoined server: {member.joined_at.strftime('%a, %m/%e/%Y, %H:%M')} \nHighest role: {member.top_role.mention}")
+            e = discord.Embed(color=0x7289DA, title=f'User Info for {member}', description=f"**Name:** {member} \n**Nickname:** {member.nick} \n**ID:** {member.id} \n \n**Joined Discord:** {member.created_at.strftime('%a, %m/%e/%Y, %H:%M')} \n**Joined server:** {member.joined_at.strftime('%a, %m/%e/%Y, %H:%M')} \n**Highest role:** {member.top_role.mention}")
             e.set_footer(text=f'Invoked by {ctx.message.author}')
             e.set_thumbnail(url=member.avatar_url)
             await ctx.send(embed=e)
@@ -238,6 +260,14 @@ async def kick(ctx, member: discord.Member = None, *, reason = None):
     await log_channel.send(embed=e)
 
 
+
+@client.command()
+@commands.has_permissions(ban_members=True)
+async def welcomeinfo(ctx):
+    e = discord.Embed(color=0x7289DA, description='**{mention}** - Mentions the user \n**{members}** - Shows the current member count \n**{guild}** - Shows the guild name \n**{member}** - Shows the name of the user \n \nYou can add these arguments to your welcome message')
+    e.set_author(name='Usable args for the welcome message', icon_url=ctx.message.guild.icon_url)
+    await ctx.send(embed=e)
+
 @client.command()
 @commands.has_permissions(ban_members=True)
 async def ban(ctx, member: discord.Member = None, *, reason = None): # ban command
@@ -254,7 +284,7 @@ async def ban(ctx, member: discord.Member = None, *, reason = None): # ban comma
     await member.ban(reason=reason)
     e = discord.Embed(color=0x7289DA, description=f"User: **{member}** (ID: **{member.id}**) \nModerator: **{ctx.message.author}** (ID: **{ctx.message.author.id}**) \nReason: **{reason}**")
     e.set_author(name='User banned')
-    await ctx.send(f'Succesfully banned user {member}')
+    await ctx.send(f'Succesfully banned user **{member}** (ID: **{member.id}**) for **{reason}**')
     guild = ctx.message.guild
     f = open(f"{guild.id}-log.txt", "r")
     channel_id = f.read()
@@ -262,71 +292,16 @@ async def ban(ctx, member: discord.Member = None, *, reason = None): # ban comma
     await log_channel.send(embed=e)
 
 
-@client.command()
-@commands.has_permissions(ban_members=True)
-async def lock(ctx, channel: discord.TextChannel = None, time: int = None): # locks a channel
-    if time == None:
-        await ctx.send('Please enter a valid time.')
-        return
-    if channel == None:
-        channel = ctx.message.channel
-    await channel.set_permissions(ctx.message.guild.default_role, send_messages=False)
-    await channel.send(f'Channel is now locked for {time} seconds.')
-    await asyncio.sleep(time)
-    await channel.set_permissions(ctx.message.guild.default_role, send_messages=True)
-    await channel.send('Channel is now unlocked again.')
-                              
-                              
-@client.command()
-@commands.has_permissions(ban_members=True)
-async def softban(ctx, member: discord.Member = None, *, reason = None):
-    guild = ctx.message.guild
-    if member == None:
-        await ctx.send('Please mention a valid user or enter a valid user id.')
-        return
-    if member == ctx.message.author:
-        await ctx.send("Sorry, but you can't ban yourself.")
-        return
-    if member == member.id:
-        member = member
-    if reason == None:
-        reason = 'No reason provided'
-    await guild.ban(user=member, reason=reason, delete_message_days=7)
-    await guild.unban(user=member, reason='Softban')
-    await ctx.send(f'Succesfully softbanned user `{member}`')
-    e = discord.Embed(color=0x7289DA, description=f"**User:** {member} (ID: **{member.id}**) \n**Moderator:** {ctx.message.author} (ID: **{ctx.message.author.id}**) \n**Reason:** {reason}")
-    e.set_author(name='User softbanned')
-    f = open(f"{guild.id}-log.txt", "r")
-    channel_id = f.read()
-    channel = await client.fetch_channel(channel_id)
-    await channel.send(embed=e)
 
 
-@client.command()
-async def credits(ctx): # credits of the developer
-    bot = client.get_user(697487580522086431)
-    e = discord.Embed(color=0x7289DA)
-    e.set_author(name='Developer of Tools', icon_url=bot.avatar_url)
-    e.add_field(name='**<:Verified:697810401496137840> Contact info**', value='<:discord:697812138772660274> Discord: `EzZz#0001` \n<:logotwitter:697811990084714568>  Twitter: [@EzZz1337](https://twitter.com/ezzz1337) \n<:GitHub:705804702201413694> GitHub: [EzZz1337](https://github.com/ezzz1337) \n<:Website:697812224193986630> Website: [Click here](https://ezzz0099.ezzz1337.repl.co)', inline=False)
-    e.set_footer(text='Contact me, if you need help')
-    await ctx.send(embed=e)
 
 
 @client.command()
 async def botinfo(ctx): # info about teh bot
     bot = client.get_user(697487580522086431)
-    e = discord.Embed(color=0x7289DA, description=F'**Name:** {bot} \n**ID:** {bot.id} \n**Prefix:** + \n \n**Servers:** {len(client.guilds)} \n**Members:** {len(set(client.get_all_members()))} \n**Ping:** {round(client.latency * 1000)}ms \n \n**Library:** discord.py \n**Developer:** EzZz#0001 \n**GitHub Repo:** [Click here](https://github.com/EzZz1337/Tools) \n**Bot invite:** [Click here](https://discordapp.com/api/oauth2/authorize?client_id=697487580522086431&permissions=8&scope=bot) \n**Support server:** [Join](https://discord.gg/S9BEBux)')
+    e = discord.Embed(color=0x7289DA, description=F'**Name:** {bot} \n**ID:** {bot.id} \n**Prefix:** + \n \n**Servers:** {len(client.guilds)} \n**Members:** {len(set(client.get_all_members()))} \n**Ping:** {round(client.latency * 1000)}ms \n \n**Library:** discord.py \n**GitHub Repo:** [Click here](https://github.com/EzZz1337/Tools)')
     e.set_author(name='Info about Tools')
     e.set_thumbnail(url=bot.avatar_url)
-    e.set_footer(text=f'Invoked by {ctx.message.author}')
-    await ctx.send(embed=e)
-
-
-@client.command()
-async def support(ctx): # support server invite
-    bot = client.get_user(697487580522086431)
-    e = discord.Embed(color=0x7289DA, description='[<:discord:697812138772660274> Click here to join](https://discord.gg/S9BEBux)')
-    e.set_author(name='Support server for Tools', icon_url=bot.avatar_url)
     e.set_footer(text=f'Invoked by {ctx.message.author}')
     await ctx.send(embed=e)
 
@@ -447,7 +422,7 @@ async def warn(ctx, member: discord.Member = None, *, reason = None): # warns a 
             f4.write('0')
             f4.close()
             await member.ban(reason=reason)
-            await ctx.send(f"Looks like **{member}** (ID: **{member.id}**) has been warned to often, and now they are banned.")
+            await ctx.send(f"Looks like **{member}** (ID: **{member.id}**) has been warned too often, and now they are banned.")
             if os.path.exists(f"{guild.id}-log.txt"):
                 f9 = open(f"{guild.id}-log.txt", "r")
                 log_id = f9.read()
@@ -570,15 +545,62 @@ async def guildinfo(ctx): # shows info aout the guild
 
 @client.event
 async def on_member_join(member): # welcome event
+    guild = client.get_guild(712832986642645004)
     g = member.guild
+    g2 = client.get_guild(701041308810084362)
+    g3 = client.get_guild(708657755577253930)
+    if g == guild:
+        log = client.get_channel(713028985541623841)
+        embed = discord.Embed(color=0x7289DA, description=f"**Neuer User** \nUser: {member.mention} \n \nUser Name: **{member}** \n \nUser ID: **{member.id}**")
+        await log.send(embed=embed)
+        return
+    if g == g3:
+        role = discord.utils.get(g3.roles, name="Detectives")
+        await member.add_roles(role)
+        await member.send(f"Thanks for joining the server **{member.name}**! \nRemember to always follow the #rules and to have fun here. \nAnyway: **Nine-Nine!**")
+        return
+    if g == g2:
+        log2 = client.get_channel(701959960208343141)
+        embed2 = discord.Embed(color=0x7289DA, description=f"**Neuer User** \nUser: {member.mention} \n \nUser Name: **{member}** \n \nUser ID: **{member.id}**")
+        await log2.send(embed=embed2)
+        f = open(f"{g.id}-welcome-channel.txt", "r")
+        welcome_channel_id = f.read()
+        welcome_channel = await client.fetch_channel(welcome_channel_id)
+        f2 = open(f"{g.id}-welcome-msg.txt", "r")
+        welcome_msg = f2.read()
+        members = len(list(member.guild.members))
+        mention = member.mention
+        user = member.name
+        guild = member.guild
+        await welcome_channel.send(str(welcome_msg).format(members=members, member=member, guild=guild, mention=mention))
+        return
     f = open(f"{g.id}-welcome-channel.txt", "r")
     welcome_channel_id = f.read()
     welcome_channel = await client.fetch_channel(welcome_channel_id)
     f2 = open(f"{g.id}-welcome-msg.txt", "r")
     welcome_msg = f2.read()
-    await welcome_channel.send(f"{welcome_msg}")
+    members = len(list(member.guild.members))
+    mention = member.mention
+    user = member.name
+    guild = member.guild
+    await welcome_channel.send(str(welcome_msg).format(members=members, member=member, guild=guild, mention=mention))
 
 
+@client.event
+async def on_member_remove(member):
+    guild = client.get_guild(712832986642645004)
+    g = member.guild
+    g2 = client.get_guild(701041308810084362)
+    if g == guild:
+        log = client.get_channel(713029013483946054)
+        embed = discord.Embed(color=0x7289DA, description=f"**User hat den Server verlassen** \nUser Name: **{member}** \n \nUser ID: **{member.id}**")
+        await log.send(embed=embed)
+        return
+    if g == g2:
+        log2 = client.get_channel(701959960208343141)
+        embed2 = discord.Embed(color=0x7289DA, description=f"**User hat den Server verlassen** \nUser Name: **{member}** \n \nUser ID: **{member.id}**")
+        await log2.send(embed=embed2)
+        return
 
 
 @client.command()
@@ -646,12 +668,12 @@ async def send(ctx, *, text = None):
             mod_channel = await client.fetch_channel(mod_channel_id)
             # --------------------------------------------------------
             if ctx.message.channel != user_channel:
-                await ctx.send(f"Please user the correct modmail channel: {user_channel.mention}")
+                await ctx.send(f"Please use the correct modmail channel: {user_channel.mention}")
                 return
             else:
                 await mod_channel.send(f"─────────────────── \nNew message by **{ctx.message.author}**: \n \n`{text}` \n \nUser ID: **{ctx.message.author.id}**")
                 await ctx.message.author.send(f'Hey **{ctx.message.author.name}**, we received your message & will respond as fast as possible.')
-                await user_channel.purge(limit=2)
+                await user_channel.purge(limit=5)
 
 
 @modmail.command()
@@ -661,7 +683,7 @@ async def enable(ctx):
     f = open(f"{guild.id}-modmail-checking.txt", "w")
     f.write('true')
     f.close()
-    await ctx.send('Succesfully enabled the Modmail system. Please set the user channel with **+modmail userchannel CHANNEL** & the mod channel with **+modmail modchannel CHANNEL**.')
+    await ctx.send('Succesfully enabled the Modmail system. Please set the user channel with **+modmail userchannel #channel** & the mod channel with **+modmail modchannel #channel**.')
 
 
 @modmail.command()
@@ -725,6 +747,33 @@ async def respond(ctx, member: discord.Member = None, *, text = None):
         await ctx.send('Responded!')
 
 
+
+@client.command()
+@commands.has_permissions(ban_members=True)
+async def softban(ctx, member: discord.Member = None, *, reason = None):
+    guild = ctx.message.guild
+    if member == None:
+        await ctx.send('Please mention a valid user or enter a valid user id.')
+        return
+    if member == ctx.message.author:
+        await ctx.send("Sorry, but you can't ban yourself.")
+        return
+    if member == member.id:
+        member = member
+    if reason == None:
+        reason = 'No reason provided'
+    await guild.ban(user=member, reason=reason, delete_message_days=7)
+    await guild.unban(user=member, reason='Softban')
+    await ctx.send(f'Succesfully softbanned user `{member}`')
+    e = discord.Embed(color=0x7289DA, description=f"**User:** {member} (ID: **{member.id}**) \n**Moderator:** {ctx.message.author} (ID: **{ctx.message.author.id}**) \n**Reason:** {reason}")
+    e.set_author(name='User softbanned')
+    f = open(f"{guild.id}-log.txt", "r")
+    channel_id = f.read()
+    channel = await client.fetch_channel(channel_id)
+    await channel.send(embed=e)
+
+
+
 @modmail.command()
 @commands.has_permissions(administrator=True)
 async def userchannel(ctx, channel: discord.TextChannel = None):
@@ -781,11 +830,196 @@ async def status(ctx):
             mod_channel = await client.fetch_channel(mod_channel_id)
             # --------------------------------------------------------
             e = discord.Embed(color=0x7289DA)
-            e.set_author(name=f'Server Mdomail status for {guild.name}', icon_url=guild.icon_url)
+            e.set_author(name=f'Server Modmail status for {guild.name}', icon_url=guild.icon_url)
             e.add_field(name='**Mod channel:**', value=f'{mod_channel.mention}', inline=False)
             e.add_field(name='**User channel:**', value=f'{user_channel.mention}', inline=False)
             e.set_footer(text=f'Invoked by {ctx.message.author}', icon_url=ctx.message.author.avatar_url)
             await ctx.send(embed=e)
+
+
+
+@client.command()
+async def poll(ctx, *, text = None):
+    if text == None:
+        await ctx.send('Please enter a valid text.')
+        return
+    embed = discord.Embed(color=0x7289DA, description=f"{text}")
+    embed.set_author(name=f"Poll by {ctx.message.author}", icon_url=ctx.message.author.avatar_url)
+    embed.set_footer(text=f'User ID: {ctx.message.author.id}')
+    msg = await ctx.send(embed=embed)
+    await msg.add_reaction('👍')
+    await msg.add_reaction('👎')
+    await msg.add_reaction('🤷‍♀️')
+
+
+
+
+@client.command()
+@commands.has_permissions(ban_members=True)
+async def muterole(ctx, role: discord.Role = None):
+    guild = ctx.message.guild
+    if muterole == None:
+        await ctx.send('Please enter a valid role name, role id or mention a valid role.')
+        return
+    if not os.path.exists(f"./MuteRoles/{guild.id}-mute-role.txt"):
+        await ctx.send('Error 404: File not found.')
+        return
+    if os.path.exists(f"./MuteRoles/{guild.id}-mute-role.txt"):
+        f = open(f"./MuteRoles/{guild.id}-mute-role.txt", "w")
+        f.write(f"{role.id}")
+        f.close()
+        await ctx.send(f"Mute role has been set (**{role.name}**)")
+        return
+
+
+
+@client.command()
+@commands.has_permissions(ban_members=True)
+async def mute(ctx, member: discord.Member = None, time: int = None, *, reason = None):
+    guild = ctx.message.guild
+    max_time = 2880
+    if member == None:
+        await ctx.send('Please enter a valid member id or mention a valid member.')
+        return
+    if time == None:
+        await ctx.send('Please enter a valid time.')
+        return
+    if time >= max_time:
+        await ctx.send('Sorry, but the max mute time is 2 days (2880 minutes).')
+        return
+    if reason == None:
+        reason = 'None'
+    if not os.path.exists(f"./MuteRoles/{guild.id}-mute-role.txt"):
+        await ctx.send('Error 404: File not found.')
+        return
+    if os.path.exists(f"./MuteRoles/{guild.id}-mute-role.txt"):
+        if os.stat(f"./MuteRoles/{guild.id}-mute-role.txt").st_size == 0:
+            await ctx.send('Error: No mute role has been set yet.')
+            return
+        f = open(f"./MuteRoles/{guild.id}-mute-role.txt", "r")
+        mute_role_id = f.read()
+        mute_role = discord.utils.get(guild.roles, id=int(mute_role_id))
+        await member.add_roles(mute_role, reason=reason)
+        if os.path.exists(f"{guild.id}-log.txt"):
+            f9 = open(f"{guild.id}-log.txt", "r")
+            log_id = f9.read()
+            log_channel = await client.fetch_channel(log_id)
+            e = discord.Embed(color=0x7289DA, description=f"User: **{member}** (ID: **{member.id}**) \nModerator: **{ctx.message.author}** (ID: **{ctx.message.author.id}**) \nTime: **{time}** Minutes \nReason: **{reason}**")
+            e.set_author(name='User Muted')
+            await log_channel.send(embed=e)
+        else:
+            pass
+        await asyncio.sleep(time * 60)
+        await member.remove_roles(mute_role, reason=reason)
+        if os.path.exists(f"{guild.id}-log.txt"):
+            f9 = open(f"{guild.id}-log.txt", "r")
+            log_id = f9.read()
+            log_channel = await client.fetch_channel(log_id)
+            e = discord.Embed(color=0x7289DA, description=f"User: **{member}** (ID: **{member.id}**) \nModerator: **{ctx.message.author}** (ID: **{ctx.message.author.id}**)")
+            e.set_author(name='User Unmuted')
+            await log_channel.send(embed=e)
+        else:
+            pass
+
+
+
+@client.event
+async def on_message_delete(message):
+    guild = client.get_guild(708657755577253930)
+    log_channel = client.get_channel(708663916233752617)
+    if message.guild != guild:
+        return
+    if message.guild == guild:
+        embed = discord.Embed(color=0x7289DA)
+        embed.set_author(name='Message deleted')
+        embed.add_field(name=f"**User:**", value=f"{message.author} (ID: {message.author.id})", inline=False)
+        embed.add_field(name='**Content:**', value=f"{message.content}", inline=False)
+        await log_channel.send(embed=embed)
+        return
+
+
+@client.event
+async def on_message_edit(before, after):
+    guild = client.get_guild(708657755577253930)
+    log_channel = client.get_channel(708663916233752617)
+    if before.guild != guild:
+        return
+    if before.guild == guild:
+        if before.content != after.content:
+            embed = discord.Embed(color=0x7289DA)
+            embed.set_author(name='Message edited')
+            embed.add_field(name=f"**User:**", value=f"{before.author} (ID: {before.author.id})", inline=False)
+            embed.add_field(name='**Old content**', value=f"{before.content}", inline=False)
+            embed.add_field(name='**New content**', value=f"{after.content}", inline=False) 
+            await log_channel.send(embed=embed)   
+            return
+
+
+@client.command()
+@commands.has_permissions(ban_members=True)
+async def lockdown(ctx):
+    guild = client.get_guild(712832986642645004)
+    if ctx.message.guild != guild:
+        return
+    if ctx.message.guild == guild:
+        c1 = client.get_channel(712833603687415859)
+        c2 = client.get_channel(712841539805773827)
+        c3 = client.get_channel(712839233726840874)
+        c4 = client.get_channel(712839248172285952)
+        c5 = client.get_channel(712839274059268158)
+        log = client.get_channel(712838409202303008)
+        await c1.edit(name='🔒-allgemeiner-chat')
+        await c2.edit(name='🔒-essen')
+        await c3.edit(name='🔒-musik')
+        await c4.edit(name='🔒-filme')
+        await c5.edit(name='🔒-feedback')
+        await c1.set_permissions(guild.default_role, send_messages=False, send_tts_messages=False, attach_files=False, add_reactions=False)
+        await c2.set_permissions(guild.default_role, send_messages=False, send_tts_messages=False, attach_files=False, add_reactions=False)
+        await c3.set_permissions(guild.default_role, send_messages=False, send_tts_messages=False, attach_files=False, add_reactions=False)
+        await c4.set_permissions(guild.default_role, send_messages=False, send_tts_messages=False, attach_files=False, add_reactions=False)
+        await c5.set_permissions(guild.default_role, send_messages=False, send_tts_messages=False, attach_files=False, add_reactions=False)
+        embed = discord.Embed(color=0xF83207, description=f"🔒 Server gelocked von **{ctx.message.author}**! 🔒")
+        await c1.send(embed=embed)
+        await c2.send(embed=embed)
+        await c3.send(embed=embed)
+        await c4.send(embed=embed)
+        await c5.send(embed=embed)
+        await log.send(embed=embed)
+
+
+
+
+@client.command()
+@commands.has_permissions(ban_members=True)
+async def endlock(ctx):
+    guild = client.get_guild(712832986642645004)
+    if ctx.message.guild != guild:
+        return
+    else:
+        c1 = client.get_channel(712833603687415859)
+        c2 = client.get_channel(712841539805773827)
+        c3 = client.get_channel(712839233726840874)
+        c4 = client.get_channel(712839248172285952)
+        c5 = client.get_channel(712839274059268158)
+        log = client.get_channel(712838409202303008)
+        await c1.edit(name='allgemeiner-chat')
+        await c2.edit(name='essen')
+        await c3.edit(name='musik')
+        await c4.edit(name='filme')
+        await c5.edit(name='feedback')
+        await c1.set_permissions(guild.default_role, send_messages=True, send_tts_messages=False, attach_files=True, add_reactions=True)
+        await c2.set_permissions(guild.default_role, send_messages=True, send_tts_messages=False, attach_files=True, add_reactions=True)
+        await c3.set_permissions(guild.default_role, send_messages=True, send_tts_messages=False, attach_files=True, add_reactions=True)
+        await c4.set_permissions(guild.default_role, send_messages=True, send_tts_messages=False, attach_files=True, add_reactions=True)
+        await c5.set_permissions(guild.default_role, send_messages=True, send_tts_messages=False, attach_files=True, add_reactions=True)
+        embed = discord.Embed(color=0x44F807, description=f"Server unlocked von **{ctx.message.author}**!")
+        await c1.send(embed=embed)
+        await c2.send(embed=embed)
+        await c3.send(embed=embed)
+        await c4.send(embed=embed)
+        await c5.send(embed=embed)
+        await log.send(embed=embed)
+
 
 
 
@@ -796,14 +1030,14 @@ async def on_command_error(ctx, error): # error messages
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("Sorry, but I couldn't find that command. Maybe you made a little typo.")
         return
-    if isinstance(error, commands.NotOwner):
-        await ctx.send('This command can only be used by the bot owner.')
+    if isinstance(error, commands.BotMissingPermissions):
+        await ctx.send("Sorry, but I don't have permissions to do this action.")
         return
     if isinstance(error, commands.MissingPermissions):
         await ctx.send("Sorry, but you don't have the permissions to do this action.")
         return
-    if isinstance(error, commands.BotMissingPermissions):
-        await ctx.send("Sorry, but I don't have permissions to do this action.")
+    if isinstance(error, commands.NotOwner):
+        await ctx.send('This command can only be used by the bot owner.')
         return
 
 
